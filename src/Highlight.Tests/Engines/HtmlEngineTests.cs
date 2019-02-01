@@ -8,13 +8,15 @@ namespace Highlight.Tests.Engines
     [TestFixture]
     public class HtmlEngineTests
     {
-        private IEngine engine;
+        private IEngine htmlEngine, xmlEngine;
         private IConfiguration configuration;
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void FixtureSetUp()
         {
-            engine = new HtmlEngine();
+            htmlEngine = new HtmlEngine();
+            xmlEngine = new XmlEngine();
+
             configuration = new DefaultConfiguration();
         }
 
@@ -27,7 +29,7 @@ namespace Highlight.Tests.Engines
             var expectedOutout = InputOutput.CSharp_Sample1_HtmlOutput;
 
             // Act
-            var output = engine.Highlight(definition, input);
+            var output = htmlEngine.Highlight(definition, input);
 
             // Assert
             Assert.That(output, Is.EqualTo(expectedOutout));
@@ -42,7 +44,7 @@ namespace Highlight.Tests.Engines
             var expectedOutput = InputOutput.Html_Sample1_HtmlOutput;
 
             // Act
-            var output = engine.Highlight(definition, input);
+            var output = htmlEngine.Highlight(definition, input);
 
             // Assert
             Assert.That(output, Is.EqualTo(expectedOutput));
@@ -57,10 +59,40 @@ namespace Highlight.Tests.Engines
             var expectedOutput = InputOutput.Html_Sample2_HtmlOutput;
 
             // Act
-            var output = engine.Highlight(definition, input);
+            var output = htmlEngine.Highlight(definition, input);
 
             // Assert
             Assert.That(output, Is.EqualTo(expectedOutput));
+        }
+
+        [Test]
+        public void Highlight_EnsureSqlIsCaseInsensitive()
+        {
+            // Arrange
+            var definition = configuration.Definitions["SQL"];
+            var input = "select * from my_table;";
+            var expectedOutout = "<highlightedInput><ReservedKeyword>select</ReservedKeyword> * <ReservedKeyword>from</ReservedKeyword> my_table;</highlightedInput>";
+
+            // Act
+            var output = xmlEngine.Highlight(definition, input);
+
+            // Assert
+            Assert.That(output, Is.EqualTo(expectedOutout));
+        }
+
+        [Test]
+        public void Highlight_EnsureCsIsCaseSensitive()
+        {
+            // Arrange
+            var definition = configuration.Definitions["C#"];
+            var input = "VOID test;";
+            var expectedOutout = "<highlightedInput>VOID test;</highlightedInput>";
+
+            // Act
+            var output = xmlEngine.Highlight(definition, input);
+
+            // Assert
+            Assert.That(output, Is.EqualTo(expectedOutout));
         }
     }
 }
